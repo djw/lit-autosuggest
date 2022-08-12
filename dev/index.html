@@ -7,16 +7,17 @@
     <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="../node_modules/lit/polyfill-support.js"></script>
     <script type="module" src="../my-element.js"></script>
+    <script defer src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAgI8qllHa6zkEJbFmr-PnJ1mDs1KgOSLw&libraries=places"></script>
     <style>
-      p {
-        border: solid 1px blue;
-        padding: 8px;
+      body {
+        font-family: -apple-system;
+        max-width: 800px;
+        margin: 100px auto 0;
       }
     </style>
   </head>
   <body>
-    <my-element>
-      <p>This is child content</p>
-    </my-element>
+    <h1>Autosuggest Demo</h1>
+    <my-element></my-element>
   </body>
 </html>

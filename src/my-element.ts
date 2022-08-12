@@ -1,11 +1,12 @@
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
+/// <reference types="google.maps" />
 import {LitElement, html, css} from 'lit';
-import {customElement, property} from 'lit/decorators.js';
+import {customElement, state} from 'lit/decorators.js';
+
+declare global {
+  interface Window {
+    google: typeof google;
+  }
+}
 
 /**
  * An example element.
@@ -18,46 +19,92 @@ import {customElement, property} from 'lit/decorators.js';
 export class MyElement extends LitElement {
   static override styles = css`
     :host {
-      display: block;
-      border: solid 1px gray;
-      padding: 16px;
-      max-width: 800px;
+      position: relative;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    input {
+      border: 1px solid grey;
+      margin: 0;
+      padding: 10px;
+      width: 100%;
+    }
+    ul {
+      background-color: white;
+      margin: 0;
+      margin-top: -1px;
+      padding: 0;
+      list-style-type: none;
+      border: 1px solid grey;
+      position: absolute;
+      width: 100%;
+    }
+    li {
+      padding: 10px;
+    }
+    li:nth-child(even) {
+      background: #eee;
     }
   `;
 
   /**
-   * The name to say "Hello" to.
+   * The current list of suggestions
    */
-  @property()
-  name = 'World';
+  @state()
+  private suggestions: string[] = [];
+  
 
-  /**
-   * The number of times the button has been clicked.
-   */
-  @property({type: Number})
-  count = 0;
+  private renderSuggestions() {
+    if (this.suggestions.length) {
+      return html`
+        <ul>
+          ${this.suggestions.map((suggestion) =>
+            html`<li>${suggestion}</li>`
+          )}
+        </ul>
+      `;
+    } {
+      return null;
+    }
+  }
 
   override render() {
     return html`
-      <h1>${this.sayHello(this.name)}!</h1>
-      <button @click=${this._onClick} part="button">
-        Click Count: ${this.count}
-      </button>
-      <slot></slot>
+      <input type="text" @input=${this._onInput} autocomplete="off" spellcheck="false"/>
+      ${this.renderSuggestions()}
     `;
   }
 
-  private _onClick() {
-    this.count++;
-    this.dispatchEvent(new CustomEvent('count-changed'));
-  }
+  private _onInput(e: InputEvent) {
+    if (!e.target) return;
+    const text = (e.target as HTMLInputElement).value;
+    // console.log(newValue);
+    // if (newValue.length) {
+    //   this.suggestions = ["Option 1", "Option 2", "Option 3"];
+    // } else {
+    //   this.suggestions = [];
+    // }
 
-  /**
-   * Formats a greeting
-   * @param name The name to say "Hello" to
-   */
-  sayHello(name: string): string {
-    return `Hello, ${name}`;
+    if (text.length < 2) {
+      this.suggestions = [];
+      return
+    };
+
+    const gmaps = window.google.maps;
+
+    const options = {
+      input: text,
+      types: ["geocode"],
+      // sessionToken: this.sessionToken,
+    };
+    const service = new gmaps.places.AutocompleteService();
+    service.getPlacePredictions(options, (results, status) => {
+      if (status === gmaps.places.PlacesServiceStatus.OK) {
+        this.suggestions = results?.map(r => r.description) || [];
+      }
+    });
+
   }
 }
 
