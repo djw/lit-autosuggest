@@ -3,7 +3,7 @@
 /test/
 custom-elements.json
 # top level source
-my-element.js
-my-element.js.map
-my-element.d.ts
-my-element.d.ts.map
+lit-autosuggest.js
+lit-autosuggest.js.map
+lit-autosuggest.d.ts
+lit-autosuggest.d.ts.map
